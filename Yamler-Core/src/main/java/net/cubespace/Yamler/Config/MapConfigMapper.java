@@ -13,10 +13,14 @@ import java.util.Map;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class MapConfigMapper extends YamlConfigMapper {
-    public Map saveToMap() throws Exception {
+    public Map saveToMap(Field[] fields) throws Exception {
+        saveToMap(getClass().getDeclaredFields());
+    }
+    
+    public Map saveToMap(Field[] fields) throws Exception {
         Map<String, Object> returnMap = new HashMap<>();
 
-        for (Field field : getClass().getDeclaredFields()) {
+        for (Field field : fields) {
             if (doSkip(field)) continue;
 
             String path = (CONFIG_MODE.equals(ConfigMode.DEFAULT)) ? field.getName().replaceAll("_", ".") : field.getName();
@@ -40,7 +44,11 @@ public class MapConfigMapper extends YamlConfigMapper {
     }
 
     public void loadFromMap(Map section) throws Exception {
-        for (Field field : getClass().getDeclaredFields()) {
+        return loadFromMap(getClass().getDeclaredFields());
+    }
+
+    public void loadFromMap(Field[] fields, Map section) throws Exception {
+        for (Field field : fields) {
             if (doSkip(field)) continue;
 
             String path = (CONFIG_MODE.equals(ConfigMode.DEFAULT)) ? field.getName().replaceAll("_", ".") : field.getName();
