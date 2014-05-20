@@ -6,7 +6,6 @@ import net.cubespace.Yamler.Config.Converter.Primitive;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
 /**
@@ -57,7 +56,7 @@ public class InternalConverter {
         return null;
     }
 
-    public void fromConfig(Config config, Field field, ConfigSection root, String path) throws Exception {
+    public void fromConfig(Config config, Field[] fields, Field field, ConfigSection root, String path) throws Exception {
         Object obj = field.get(config);
 
         Converter converter;
@@ -87,7 +86,7 @@ public class InternalConverter {
         field.set(config, root.get(path));
     }
 
-    public void toConfig(Config config, Field field, ConfigSection root, String path) throws Exception {
+    public void toConfig(Config config, Field[] fields, Field field, ConfigSection root, String path) throws Exception {
         Object obj = field.get(config);
 
         Converter converter;

@@ -12,13 +12,17 @@ import java.util.Arrays;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class Config extends MapConfigMapper implements IConfig {
-    public Config() {
+    private transient Field[] fields = null;
 
+    public Config() {
+        this.fields = getClass().getDeclaredFields();
     }
 
-    public Config(String filename, String ... header) {
+    public Config(String filename, String... header) {
         CONFIG_FILE = new File(filename + (filename.endsWith(".yml") ? "" : ".yml"));
         CONFIG_HEADER = header;
+
+        this.fields = getClass().getDeclaredFields();
     }
 
     @Override
@@ -38,11 +42,15 @@ public class Config extends MapConfigMapper implements IConfig {
     }
 
     private void internalSave(Class clazz) throws InvalidConfigurationException {
+        internalLoad(clazz, fields);
+    }
+
+    private void internalSave(Class clazz, Field[] fields) throws InvalidConfigurationException {
         if (!clazz.getSuperclass().equals(Config.class)) {
             internalSave(clazz.getSuperclass());
         }
 
-        for (Field field : clazz.getDeclaredFields()) {
+        for (Field field : fields) {
             if (doSkip(field)) continue;
 
             String path = (CONFIG_MODE.equals(ConfigMode.DEFAULT)) ? field.getName().replaceAll("_", ".") : field.getName();
@@ -77,8 +85,8 @@ public class Config extends MapConfigMapper implements IConfig {
             }
 
             try {
-                converter.toConfig(this, field, root, path);
-                converter.fromConfig(this, field, root, path);
+                converter.toConfig(this, fields, field, root, path);
+                converter.fromConfig(this, fields, field, root, path);
             } catch (Exception e) {
                 if (!skipFailedObjects) {
                     throw new InvalidConfigurationException("Could not save the Field", e);
@@ -114,6 +122,10 @@ public class Config extends MapConfigMapper implements IConfig {
         }
     }
 
+    public void setFields(Field[] fields) {
+        this.fields = fields;
+    }
+
     @Override
     public void init(File file) throws InvalidConfigurationException {
         if (file == null) {
@@ -141,13 +153,18 @@ public class Config extends MapConfigMapper implements IConfig {
         internalLoad(getClass());
     }
 
+
     private void internalLoad(Class clazz) throws InvalidConfigurationException {
+        internalLoad(clazz, fields);
+    }
+
+    private void internalLoad(Class clazz, Field[] fields) throws InvalidConfigurationException {
         if (!clazz.getSuperclass().equals(Config.class)) {
             internalLoad(clazz.getSuperclass());
         }
 
         boolean save = false;
-        for (Field field : clazz.getDeclaredFields()) {
+        for (Field field : fields) {
             if (doSkip(field)) continue;
 
             String path = (CONFIG_MODE.equals(ConfigMode.DEFAULT)) ? field.getName().replaceAll("_", ".") : field.getName();
@@ -163,14 +180,14 @@ public class Config extends MapConfigMapper implements IConfig {
 
             if (root.has(path)) {
                 try {
-                    converter.fromConfig(this, field, root, path);
+                    converter.fromConfig(this, fields, field, root, path);
                 } catch (Exception e) {
                     throw new InvalidConfigurationException("Could not set field", e);
                 }
             } else {
                 try {
-                    converter.toConfig(this, field, root, path);
-                    converter.fromConfig(this, field, root, path);
+                    converter.toConfig(this, fields, field, root, path);
+                    converter.fromConfig(this, fields, field, root, path);
 
                     save = true;
                 } catch (Exception e) {

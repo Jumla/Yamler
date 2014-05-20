@@ -60,7 +60,7 @@ public class MapConfigMapper extends YamlConfigMapper {
                 field.setAccessible(true);
             }
 
-            converter.fromConfig((Config) this, field, ConfigSection.convertFromMap(section), path);
+            converter.fromConfig((Config) this, fields, field, ConfigSection.convertFromMap(section), path);
         }
     }
 }
