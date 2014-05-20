@@ -4,8 +4,6 @@ import net.cubespace.Yamler.Config.Converter.Converter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,8 +11,8 @@ import java.util.Map;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class MapConfigMapper extends YamlConfigMapper {
-    public Map saveToMap(Field[] fields) throws Exception {
-        saveToMap(getClass().getDeclaredFields());
+    public Map saveToMap() throws Exception {
+        return saveToMap(getClass().getDeclaredFields());
     }
     
     public Map saveToMap(Field[] fields) throws Exception {
@@ -44,7 +42,7 @@ public class MapConfigMapper extends YamlConfigMapper {
     }
 
     public void loadFromMap(Map section) throws Exception {
-        return loadFromMap(getClass().getDeclaredFields());
+        loadFromMap(getClass().getDeclaredFields(), section);
     }
 
     public void loadFromMap(Field[] fields, Map section) throws Exception {
